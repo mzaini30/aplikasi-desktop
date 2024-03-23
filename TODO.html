@@ -7,10 +7,46 @@
     <title>TODO</title>
     <script src="./TODO_files/alasql.js"></script>
     <script src="./TODO_files/db.js"></script>
+    <script src="./TODO_files/petite-vue.js" defer init></script>
+    <link rel="stylesheet" href="./TODO_files/pico.css">
+    <link rel="stylesheet" href="./TODO_files/global.css">
 </head>
 
-<body>
-
+<body @vue:mounted="dapatkan" v-scope="{
+    tambahBaru(){
+        let baru = prompt('Nama TODOnya?')
+        if (baru){
+            alasql('insert into todo(todo, isDone) values(?, false)', [
+                baru
+            ])
+            this.dapatkan()
+        }
+    },
+    dapatkan(){
+        this.data = alasql('select * from todo order by todo')
+    },
+    ubah(todoId, isDone){
+        alasql('update todo set isDone = ? where id = ?', [
+            isDone,
+            todoId
+        ])
+        
+    },
+    hapusSemua(){
+        let tanya = confirm('Hapus semua data?')
+        if (tanya){
+            let menghapus = alasql('delete from todo')
+            this.data = []
+        }
+    },
+    data: []
+}">
+    <p><button @click="tambahBaru">TODO Baru</button></p>
+    <label v-for="x in data" :key="x.id">
+        <input :checked="x.isDone" @input="ubah(x.id, $event.target.checked)" type="checkbox" name="" id="">
+        {{ x.todo }}
+    </label>
+    <p><button @click="hapusSemua">Hapus Semua</button></p>
 </body>
 
 </html>
