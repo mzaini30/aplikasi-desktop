@@ -8,65 +8,16 @@
     <script src="./db.js"></script>
     <link rel="stylesheet" href="./pico.css" />
     <link rel="stylesheet" href="./global.css" />
-    <script src="./petite-vue.js" defer init></script>
+    <script src="./petite-vue.js"></script>
+    <script src="./swal.js"></script>
+    <script src="./global.js"></script>
     <script>
       let param = new URLSearchParams(window.location.search);
       let id = param.get("id");
     </script>
   </head>
 
-  <body
-    @vue:mounted="ambilData"
-    v-scope="{
-    judul: '',
-    isi: '',
-    ambilData(){
-        let data = alasql('select * from catatan where slug = ?', [
-            id
-        ])
-        if (data.length > 0){
-            this.judul = data[0].judul
-            this.isi = data[0].isi
-        }
-    },
-    dummy(){
-        return 'dummy'  
-    },
-    hapus(){
-        let tanya = confirm('Hapus tulisan ini?')
-        if (tanya){
-            let hapus = alasql('delete from catatan where slug = ?', [
-                id
-            ])
-            window.location.href = '../Catatan.html'
-        }
-    },
-    simpan(){
-        
-
-        let cek = alasql('select count(*) as banyak from catatan where slug = ?', [
-            id
-        ])
-
-        if(cek[0].banyak > 0){
-            // update
-            let perbarui = alasql('update catatan set judul = ?, isi = ? where slug = ?', [
-                this.judul,
-                this.isi,
-                id
-            ])
-        } else {
-            // insert
-            let simpan = alasql('insert into catatan(judul,isi,slug) values(?,?,?)', [
-                this.judul,
-                this.isi,
-                id
-            ])
-        }
-        alert('Tulisan sudah disimpan')
-    }
-}"
-  >
+  <body @vue:mounted="ambilData" v-scope>
     <form action="" @submit.prevent="simpan">
       <label for="">Judul</label>
       <input type="text" required v-model="judul" />
@@ -82,5 +33,49 @@
         />
       </div>
     </form>
+    <script>
+      PetiteVue.createApp({
+        judul: "",
+        isi: "",
+        ambilData() {
+          let data = alasql("select * from catatan where slug = ?", [id]);
+          if (data.length > 0) {
+            this.judul = data[0].judul;
+            this.isi = data[0].isi;
+          }
+        },
+        dummy() {
+          return "dummy";
+        },
+        hapus() {
+          let tanya = confirm("Hapus tulisan ini?");
+          if (tanya) {
+            let hapus = alasql("delete from catatan where slug = ?", [id]);
+            window.location.href = "../Catatan.html";
+          }
+        },
+        simpan() {
+          let cek = alasql(
+            "select count(*) as banyak from catatan where slug = ?",
+            [id]
+          );
+
+          if (cek[0].banyak > 0) {
+            // update
+            let perbarui = alasql(
+              "update catatan set judul = ?, isi = ? where slug = ?",
+              [this.judul, this.isi, id]
+            );
+          } else {
+            // insert
+            let simpan = alasql(
+              "insert into catatan(judul,isi,slug) values(?,?,?)",
+              [this.judul, this.isi, id]
+            );
+          }
+          toast("Tulisan sudah disimpan");
+        },
+      }).mount();
+    </script>
   </body>
 </html>
