@@ -6,44 +6,20 @@
     <title>TODO</title>
     <script src="./TODO_files/alasql.js"></script>
     <script src="./TODO_files/db.js"></script>
-    <script src="./TODO_files/petite-vue.js" defer init></script>
+    <script src="./TODO_files/petite-vue.js"></script>
     <link rel="stylesheet" href="./TODO_files/pico.css" />
     <link rel="stylesheet" href="./TODO_files/global.css" />
+    <script src="./TODO_files/swal.js"></script>
+    <script src="./TODO_files/global.js"></script>
   </head>
 
-  <body
-    @vue:mounted="dapatkan"
-    v-scope="{
-    tambahBaru(){
-        let baru = prompt('Nama TODOnya?')
-        if (baru){
-            alasql('insert into todo(todo, isDone) values(?, false)', [
-                baru
-            ])
-            this.dapatkan()
-        }
-    },
-    dapatkan(){
-        this.data = alasql('select * from todo order by todo')
-    },
-    ubah(todoId, isDone){
-        alasql('update todo set isDone = ? where id = ?', [
-            isDone,
-            todoId
-        ])
-        
-    },
-    hapusSemua(){
-        let tanya = confirm('Hapus semua data?')
-        if (tanya){
-            let menghapus = alasql('delete from todo')
-            this.data = []
-        }
-    },
-    data: []
-}"
-  >
-    <p><button @click="tambahBaru">TODO Baru</button></p>
+  <body @vue:mounted="dapatkan" v-scope>
+    <h1>TODO</h1>
+    <form action="" @submit.prevent="tambahBaru">
+      <label for="">TODO Baru</label
+      ><input v-model="todoBaru" required type="text" />
+    </form>
+    <h2>Semua TODO</h2>
     <label v-for="x in data" :key="x.id">
       <input
         :checked="x.isDone"
@@ -54,6 +30,35 @@
       />
       {{ x.todo }}
     </label>
-    <p><button @click="hapusSemua">Hapus Semua</button></p>
+    <p><a href="" @click.prevent="hapusSemua">Hapus Semua</a></p>
+    <script>
+      PetiteVue.createApp({
+        todoBaru: "",
+        tambahBaru() {
+          alasql("insert into todo(todo, isDone) values(?, false)", [
+            this.todoBaru,
+          ]);
+          this.todoBaru = "";
+          this.dapatkan();
+          toast("Data ditambahkan");
+        },
+        dapatkan() {
+          this.data = alasql("select * from todo order by todo");
+        },
+        ubah(todoId, isDone) {
+          alasql("update todo set isDone = ? where id = ?", [isDone, todoId]);
+          toast("Data diubah");
+        },
+        async hapusSemua() {
+          let tanya = await Swal.fire("Hapus semua data?");
+          if (tanya.isConfirmed) {
+            let menghapus = alasql("delete from todo");
+            this.data = [];
+            toast("Data berhasil dihapus");
+          }
+        },
+        data: [],
+      }).mount();
+    </script>
   </body>
 </html>
