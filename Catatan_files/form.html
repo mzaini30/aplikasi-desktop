@@ -47,9 +47,9 @@
         dummy() {
           return "dummy";
         },
-        hapus() {
-          let tanya = confirm("Hapus tulisan ini?");
-          if (tanya) {
+        async hapus() {
+          let tanya = await Swal.fire("Hapus data?");
+          if (tanya.isConfirmed) {
             let hapus = alasql("delete from catatan where slug = ?", [id]);
             window.location.href = "../Catatan.html";
           }
