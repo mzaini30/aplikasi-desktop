@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Catatan</title>
     <link rel="stylesheet" href="./Catatan_files/pico.css" />
-    <script src="./Catatan_files/petite-vue.js" defer init></script>
+    <script src="./Catatan_files/petite-vue.js"></script>
     <link rel="stylesheet" href="./Catatan_files/global.css" />
     <script src="./Catatan_files/alasql.js"></script>
     <script src="./Catatan_files/db.js"></script>
@@ -13,24 +13,35 @@
     <script src="./Catatan_files/global.js"></script>
   </head>
 
-  <body
-    @vue:mounted="ambilTulisan"
-    v-scope="{
-    acak(){
-        return crypto.randomUUID()
-    },
-    data: '',
-    ambilTulisan(){
-        let data = alasql('select * from catatan order by judul')
-        this.data = data
-    }
-}"
-  >
-    <p><a :href="`./Catatan_files/form.html?id=${acak()}`">Tulisan Baru</a></p>
+  <body @vue:mounted="ambilTulisan" v-scope>
+    <p>
+      <a :href="`./Catatan_files/form.html?id=${acak()}`" target="_top"
+        >Tulisan Baru</a
+      >
+    </p>
     <ol>
       <li v-for="x in data" :key="x.id">
-        <a :href="`./Catatan_files/form.html?id=${x.slug}`">{{ x.judul }}</a>
+        <a :href="`./Catatan_files/form.html?id=${x.slug}`" target="_top"
+          >{{ x.judul }}</a
+        >
       </li>
     </ol>
+    <script>
+      PetiteVue.createApp({
+        acak() {
+          return crypto.randomUUID();
+        },
+        data: [],
+        ambilTulisan() {
+          let data = alasql("select * from catatan order by judul");
+          this.data = data;
+          addEventListener("storage", (x) => {
+            if (x.key == "trigger") {
+              this.ambilTulisan();
+            }
+          });
+        },
+      }).mount();
+    </script>
   </body>
 </html>

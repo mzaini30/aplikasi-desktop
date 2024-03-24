@@ -15,24 +15,42 @@
       let param = new URLSearchParams(window.location.search);
       let id = param.get("id");
     </script>
+    <style>
+      .bagian {
+        grid-template-columns: repeat(6, 1fr);
+      }
+      .bagian-kiri {
+        grid-column: span 1 / span 1;
+      }
+      .bagian-kanan {
+        grid-column: span 5 / span 5;
+      }
+    </style>
   </head>
 
   <body @vue:mounted="ambilData" v-scope>
-    <form action="" @submit.prevent="simpan">
-      <label for="">Judul</label>
-      <input type="text" required v-model="judul" />
-      <label for="">Isi</label>
-      <textarea name="" id="" cols="30" rows="10" v-model="isi"></textarea>
-      <div role="group">
-        <input type="submit" value="Simpan" />
-        <input
-          class="secondary"
-          @click.prevent="hapus"
-          type="submit"
-          value="Hapus"
-        />
-      </div>
-    </form>
+    <div class="grid bagian">
+      <iframe
+        class="bagian-kiri"
+        src="../Catatan.html"
+        frameborder="0"
+      ></iframe>
+      <form action="" @submit.prevent="simpan" class="bagian-kanan">
+        <label for="">Judul</label>
+        <input type="text" required v-model="judul" />
+        <label for="">Isi</label>
+        <textarea name="" id="" cols="30" rows="10" v-model="isi"></textarea>
+        <div role="group">
+          <input type="submit" value="Simpan" />
+          <input
+            class="secondary"
+            @click.prevent="hapus"
+            type="submit"
+            value="Hapus"
+          />
+        </div>
+      </form>
+    </div>
     <script>
       PetiteVue.createApp({
         judul: "",
@@ -51,7 +69,7 @@
           let tanya = await Swal.fire("Hapus data?");
           if (tanya.isConfirmed) {
             let hapus = alasql("delete from catatan where slug = ?", [id]);
-            window.location.href = "../Catatan.html";
+            localStorage.trigger = crypto.randomUUID();
           }
         },
         simpan() {
@@ -73,6 +91,7 @@
               [this.judul, this.isi, id]
             );
           }
+          localStorage.trigger = crypto.randomUUID();
           toast("Tulisan sudah disimpan");
         },
       }).mount();
